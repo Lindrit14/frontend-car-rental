@@ -1,5 +1,7 @@
 // --- Car ---
-export type CarType = "ECONOMY" | "COMPACT" | "MIDSIZE" | "FULLSIZE" | "SUV" | "LUXURY";
+export type CarType = "ECONOMY" | "COMPACT" | "SUV" | "VAN" | "ELECTRIC" | "LUXURY";
+
+export type Transmission = "AUTOMATIC" | "MANUAL";
 
 export interface CreateCarRequest {
   brand: string;
@@ -9,6 +11,11 @@ export interface CreateCarRequest {
   dailyRate: number;
   carType: CarType;
   location: string;
+  seats: number;
+  transmission: Transmission;
+  largeLuggageSpace: number;
+  smallLuggageSpace: number;
+  imageUrl: string;
 }
 
 export interface UpdateCarRequest {
@@ -20,6 +27,11 @@ export interface UpdateCarRequest {
   dailyRate?: number;
   location?: string;
   available?: boolean;
+  seats?: number;
+  transmission?: string;
+  largeLuggageSpace?: number;
+  smallLuggageSpace?: number;
+  imageUrl?: string;
 }
 
 // The GET endpoint returns ["string"] per the spec — likely CarResponse objects.
@@ -34,6 +46,11 @@ export interface Car {
   carType: CarType;
   location: string;
   available: boolean;
+  seats: number;
+  transmission: Transmission;
+  largeLuggageSpace: number;
+  smallLuggageSpace: number;
+  imageUrl: string;
 }
 
 // --- Auth ---
@@ -62,4 +79,28 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+}
+
+// --- Booking ---
+export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+
+export interface CreateBookingRequest {
+  carId: string;
+  pickupDateTime: string;
+  returnDateTime: string;
+}
+
+export interface Booking {
+  id: string;
+  userId: string;
+  userEmail: string;
+  carId: string;
+  carBrand: string;
+  carModel: string;
+  carLicensePlate: string;
+  pickupDateTime: string;
+  returnDateTime: string;
+  totalPrice: number;
+  status: BookingStatus;
+  createdAt: string;
 }

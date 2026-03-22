@@ -7,6 +7,8 @@ import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import CarManagement from "./pages/admin/CarManagement";
 import UserManagement from "./pages/admin/UserManagement";
+import BookingManagement from "./pages/admin/BookingManagement";
+import MyBookings from "./pages/MyBookings";
 
 function Header() {
   const { auth, logout } = useAuth();
@@ -20,6 +22,9 @@ function Header() {
         <nav className="flex items-center gap-4">
           {auth ? (
             <>
+              <Link to="/bookings" className="text-sm text-blue-600 hover:underline">
+                My Bookings
+              </Link>
               <span className="text-sm text-gray-600">{auth.email}</span>
               <button
                 onClick={logout}
@@ -53,6 +58,12 @@ function HomeRoute() {
   return <CarList />;
 }
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { auth } = useAuth();
+  if (!auth) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { auth } = useAuth();
   if (!auth) return <Navigate to="/login" replace />;
@@ -76,6 +87,7 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="cars" element={<CarManagement />} />
+            <Route path="bookings" element={<BookingManagement />} />
             <Route path="users" element={<UserManagement />} />
           </Route>
 
@@ -89,6 +101,14 @@ function App() {
                   <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route
+                      path="/bookings"
+                      element={
+                        <ProtectedRoute>
+                          <MyBookings />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/" element={<HomeRoute />} />
                   </Routes>
                 </main>

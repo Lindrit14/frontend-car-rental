@@ -44,6 +44,18 @@ export default function AdminLayout() {
             Cars
           </NavLink>
           <NavLink
+            to="/admin/bookings"
+            className={({ isActive }) =>
+              `block px-4 py-2 rounded text-sm font-medium ${
+                isActive
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`
+            }
+          >
+            Bookings
+          </NavLink>
+          <NavLink
             to="/admin/users"
             className={({ isActive }) =>
               `block px-4 py-2 rounded text-sm font-medium ${

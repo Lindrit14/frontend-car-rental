@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { getAllCars, createCar, updateCar, deleteCar } from "../../api/cars";
-import type { Car, CreateCarRequest, UpdateCarRequest, CarType } from "../../types";
+import type { Car, CreateCarRequest, UpdateCarRequest, CarType, Transmission } from "../../types";
 
-const CAR_TYPES: CarType[] = ["ECONOMY", "COMPACT", "MIDSIZE", "FULLSIZE", "SUV", "LUXURY"];
+const CAR_TYPES: CarType[] = ["ECONOMY", "COMPACT", "SUV", "VAN", "ELECTRIC", "LUXURY"];
+const TRANSMISSIONS: Transmission[] = ["AUTOMATIC", "MANUAL"];
 
 const emptyForm: CreateCarRequest = {
   brand: "",
@@ -12,6 +13,11 @@ const emptyForm: CreateCarRequest = {
   dailyRate: 0,
   carType: "ECONOMY",
   location: "",
+  seats: 5,
+  transmission: "AUTOMATIC",
+  largeLuggageSpace: 0,
+  smallLuggageSpace: 0,
+  imageUrl: "",
 };
 
 export default function CarManagement() {
@@ -57,6 +63,11 @@ export default function CarManagement() {
       dailyRate: car.dailyRate,
       carType: car.carType,
       location: car.location,
+      seats: car.seats ?? 5,
+      transmission: car.transmission ?? "AUTOMATIC",
+      largeLuggageSpace: car.largeLuggageSpace ?? 0,
+      smallLuggageSpace: car.smallLuggageSpace ?? 0,
+      imageUrl: car.imageUrl ?? "",
       available: car.available,
     });
     setShowForm(true);
@@ -221,6 +232,74 @@ export default function CarManagement() {
                   required
                   value={form.location}
                   onChange={(e) => updateField("location", e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Seats
+                </label>
+                <input
+                  type="number"
+                  required
+                  min={1}
+                  value={form.seats}
+                  onChange={(e) => updateField("seats", Number(e.target.value))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Transmission
+                </label>
+                <select
+                  required
+                  value={form.transmission}
+                  onChange={(e) => updateField("transmission", e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {TRANSMISSIONS.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Large Luggage Spaces
+                </label>
+                <input
+                  type="number"
+                  required
+                  min={0}
+                  value={form.largeLuggageSpace}
+                  onChange={(e) => updateField("largeLuggageSpace", Number(e.target.value))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Small Luggage Spaces
+                </label>
+                <input
+                  type="number"
+                  required
+                  min={0}
+                  value={form.smallLuggageSpace}
+                  onChange={(e) => updateField("smallLuggageSpace", Number(e.target.value))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={form.imageUrl}
+                  onChange={(e) => updateField("imageUrl", e.target.value)}
+                  placeholder="https://..."
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
