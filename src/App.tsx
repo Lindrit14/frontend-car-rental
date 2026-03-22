@@ -3,6 +3,10 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import CarList from "./pages/CarList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AdminLayout from "./components/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import CarManagement from "./pages/admin/CarManagement";
+import UserManagement from "./pages/admin/UserManagement";
 
 function Header() {
   const { auth, logout } = useAuth();
@@ -43,9 +47,16 @@ function Header() {
   );
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function HomeRoute() {
+  const { auth } = useAuth();
+  if (auth?.role === "ADMIN") return <Navigate to="/admin" replace />;
+  return <CarList />;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
   const { auth } = useAuth();
   if (!auth) return <Navigate to="/login" replace />;
+  if (auth.role !== "ADMIN") return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -53,23 +64,38 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-gray-50">
-          <Header />
-          <main>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <CarList />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </main>
-        </div>
+        <Routes>
+          {/* Admin routes - no Header, AdminLayout has its own sidebar */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="cars" element={<CarManagement />} />
+            <Route path="users" element={<UserManagement />} />
+          </Route>
+
+          {/* Regular routes with Header */}
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen bg-gray-50">
+                <Header />
+                <main>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/" element={<HomeRoute />} />
+                  </Routes>
+                </main>
+              </div>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );

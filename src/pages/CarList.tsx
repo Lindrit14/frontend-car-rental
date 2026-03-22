@@ -1,18 +1,36 @@
 import { useEffect, useState } from "react";
 import { getCars } from "../api/cars";
+import { useAuth } from "../context/AuthContext";
+import AuthModal from "../components/AuthModal";
 import type { Car } from "../types";
 
 export default function CarList() {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { auth } = useAuth();
 
   useEffect(() => {
     getCars()
-      .then(setCars)
+      .then((data) => {
+        const valid = data.filter((c) => c.brand);
+        setCars(valid);
+        if (data.length > 0 && valid.length === 0) {
+          setError("No cars could be fetched from the backend.");
+        }
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
+
+  function handleBook(car: Car) {
+    if (!auth) {
+      setAuthModalOpen(true);
+      return;
+    }
+    alert(`Booking ${car.brand} ${car.model} — coming soon!`);
+  }
 
   if (loading) {
     return <p className="text-center mt-10 text-gray-500">Loading cars…</p>;
@@ -33,7 +51,7 @@ export default function CarList() {
         {cars.map((car) => (
           <div
             key={car.id}
-            className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+            className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col"
           >
             <h2 className="text-lg font-semibold">
               {car.brand} {car.model}
@@ -51,21 +69,36 @@ export default function CarList() {
               </p>
               <p>
                 <span className="font-medium">Daily Rate:</span>{" "}
-                €{car.dailyRate.toFixed(2)}
+                €{(car.dailyRate ?? 0).toFixed(2)}
               </p>
             </div>
-            <span
-              className={`inline-block mt-3 text-xs font-medium px-2 py-1 rounded ${
-                car.available
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {car.available ? "Available" : "Unavailable"}
-            </span>
+            <div className="mt-auto pt-3 flex items-center justify-between">
+              <span
+                className={`text-xs font-medium px-2 py-1 rounded ${
+                  car.available
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {car.available ? "Available" : "Unavailable"}
+              </span>
+              {car.available && (
+                <button
+                  onClick={() => handleBook(car)}
+                  className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700"
+                >
+                  Book
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
+
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
     </div>
   );
 }
