@@ -1,8 +1,6 @@
 // --- Car ---
 export type CarType = "ECONOMY" | "COMPACT" | "SUV" | "VAN" | "ELECTRIC" | "LUXURY";
 
-export type Transmission = "AUTOMATIC" | "MANUAL";
-
 export interface CreateCarRequest {
   brand: string;
   model: string;
@@ -11,11 +9,6 @@ export interface CreateCarRequest {
   dailyRate: number;
   carType: CarType;
   location: string;
-  seats: number;
-  transmission: Transmission;
-  largeLuggageSpace: number;
-  smallLuggageSpace: number;
-  imageUrl: string;
 }
 
 export interface UpdateCarRequest {
@@ -26,16 +19,8 @@ export interface UpdateCarRequest {
   carType?: string;
   dailyRate?: number;
   location?: string;
-  available?: boolean;
-  seats?: number;
-  transmission?: string;
-  largeLuggageSpace?: number;
-  smallLuggageSpace?: number;
-  imageUrl?: string;
 }
 
-// The GET endpoint returns ["string"] per the spec — likely CarResponse objects.
-// We'll type it based on what CreateCar + id + available would look like.
 export interface Car {
   id: string;
   brand: string;
@@ -45,12 +30,6 @@ export interface Car {
   dailyRate: number;
   carType: CarType;
   location: string;
-  available: boolean;
-  seats: number;
-  transmission: Transmission;
-  largeLuggageSpace: number;
-  smallLuggageSpace: number;
-  imageUrl: string;
 }
 
 // --- Auth ---
@@ -72,35 +51,54 @@ export interface AuthResponse {
   role: string;
 }
 
-// --- User ---
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
-
 // --- Booking ---
-export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+export type BookingStatus = "RESERVED" | "ACTIVE" | "RETURNED" | "CANCELLED";
 
 export interface CreateBookingRequest {
-  carId: string;
-  pickupDateTime: string;
-  returnDateTime: string;
+  type: CarType;
+  startDate: string;
+  endDate: string;
+  location: string;
 }
 
 export interface Booking {
   id: string;
   userId: string;
-  userEmail: string;
-  carId: string;
-  carBrand: string;
-  carModel: string;
-  carLicensePlate: string;
-  pickupDateTime: string;
-  returnDateTime: string;
-  totalPrice: number;
+  carId: string | null;
+  type: CarType;
+  location: string;
+  startDate: string;
+  endDate: string;
+  dailyRate: number;
+  totalPrice: number | null;
   status: BookingStatus;
-  createdAt: string;
+}
+
+// --- Price ---
+export interface PriceResponse {
+  carId: string;
+  price: number;
+  dailyRate: number;
+  days: number;
+  currency: string;
+  startDate: string;
+  endDate: string;
+}
+
+// --- Currency ---
+export interface CurrencyConvertResponse {
+  originalAmount: number;
+  convertedAmount: number;
+  exchangeRate: number;
+  fromCurrency: string;
+  toCurrency: string;
+  rateDate: string;
+  stale: boolean;
+}
+
+export interface CurrencyMetadataResponse {
+  source: string;
+  lastRefresh: string;
+  rateDate: string;
+  stale: boolean;
 }

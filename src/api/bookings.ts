@@ -1,33 +1,35 @@
 import { apiFetch } from "./client";
 import type { Booking, CreateBookingRequest } from "../types";
 
-export function getAllBookings(): Promise<Booking[]> {
-  return apiFetch<Booking[]>("/api/bookings");
-}
-
 export function createBooking(data: CreateBookingRequest): Promise<Booking> {
-  return apiFetch<Booking>("/api/bookings", {
+  return apiFetch<Booking>("/api/booking", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export function getBookingById(id: string): Promise<Booking> {
-  return apiFetch<Booking>(`/api/bookings/${id}`);
-}
-
 export function getMyBookings(): Promise<Booking[]> {
-  return apiFetch<Booking[]>("/api/bookings/my");
+  return apiFetch<Booking[]>("/api/booking/my");
 }
 
-export function confirmBooking(id: string): Promise<Booking> {
-  return apiFetch<Booking>(`/api/bookings/${id}/confirm`, { method: "PATCH" });
+export function getBookingById(id: string): Promise<Booking> {
+  return apiFetch<Booking>(`/api/booking/${id}`);
 }
 
-export function completeBooking(id: string): Promise<Booking> {
-  return apiFetch<Booking>(`/api/bookings/${id}/complete`, { method: "PATCH" });
+export function assignCar(bookingId: string, carId: string): Promise<Booking> {
+  return apiFetch<Booking>(`/api/booking/${bookingId}/assign?carId=${carId}`, {
+    method: "PUT",
+  });
+}
+
+export function returnBooking(bookingId: string): Promise<Booking> {
+  return apiFetch<Booking>(`/api/booking/${bookingId}/return`, {
+    method: "PUT",
+  });
 }
 
 export function cancelBooking(id: string): Promise<Booking> {
-  return apiFetch<Booking>(`/api/bookings/${id}/cancel`, { method: "PATCH" });
+  return apiFetch<Booking>(`/api/booking/${id}/cancel`, {
+    method: "PUT",
+  });
 }

@@ -6,7 +6,6 @@ import Register from "./pages/Register";
 import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import CarManagement from "./pages/admin/CarManagement";
-import UserManagement from "./pages/admin/UserManagement";
 import BookingManagement from "./pages/admin/BookingManagement";
 import MyBookings from "./pages/MyBookings";
 
@@ -76,7 +75,6 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Admin routes - no Header, AdminLayout has its own sidebar */}
           <Route
             path="/admin"
             element={
@@ -88,10 +86,8 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="cars" element={<CarManagement />} />
             <Route path="bookings" element={<BookingManagement />} />
-            <Route path="users" element={<UserManagement />} />
           </Route>
 
-          {/* Regular routes with Header */}
           <Route
             path="*"
             element={
@@ -122,3 +118,4 @@ function App() {
 }
 
 export default App;
+

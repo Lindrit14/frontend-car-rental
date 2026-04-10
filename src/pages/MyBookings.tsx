@@ -3,9 +3,9 @@ import { getMyBookings, cancelBooking } from "../api/bookings";
 import type { Booking, BookingStatus } from "../types";
 
 const statusStyles: Record<BookingStatus, string> = {
-  PENDING: "bg-yellow-100 text-yellow-700",
-  CONFIRMED: "bg-blue-100 text-blue-700",
-  COMPLETED: "bg-green-100 text-green-700",
+  RESERVED: "bg-yellow-100 text-yellow-700",
+  ACTIVE: "bg-blue-100 text-blue-700",
+  RETURNED: "bg-green-100 text-green-700",
   CANCELLED: "bg-gray-100 text-gray-500",
 };
 
@@ -37,7 +37,7 @@ export default function MyBookings() {
   }
 
   if (loading) {
-    return <p className="text-center mt-10 text-gray-500">Loading bookings…</p>;
+    return <p className="text-center mt-10 text-gray-500">Loading bookings...</p>;
   }
 
   if (error) {
@@ -57,30 +57,36 @@ export default function MyBookings() {
             key={b.id}
             className="border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col"
           >
-            <h2 className="text-lg font-semibold">
-              {b.carBrand} {b.carModel}
-            </h2>
-            <p className="text-sm text-gray-500">{b.carLicensePlate}</p>
+            <h2 className="text-lg font-semibold">{b.type}</h2>
+            <p className="text-sm text-gray-500">{b.location}</p>
             <div className="mt-2 space-y-1 text-sm">
               <p>
-                <span className="font-medium">Pickup:</span> {new Date(b.pickupDateTime).toLocaleString()}
+                <span className="font-medium">Start:</span> {b.startDate}
               </p>
               <p>
-                <span className="font-medium">Return:</span> {new Date(b.returnDateTime).toLocaleString()}
+                <span className="font-medium">End:</span> {b.endDate}
               </p>
               <p>
-                <span className="font-medium">Total:</span> €{(b.totalPrice ?? 0).toFixed(2)}
+                <span className="font-medium">Daily Rate:</span> ${b.dailyRate.toFixed(2)}
+              </p>
+              <p>
+                <span className="font-medium">Total:</span>{" "}
+                {b.totalPrice != null ? `$${b.totalPrice.toFixed(2)}` : "TBD"}
+              </p>
+              <p>
+                <span className="font-medium">Car:</span>{" "}
+                {b.carId ?? "Not yet assigned"}
               </p>
             </div>
             <div className="mt-auto pt-3 flex items-center justify-between">
               <span
                 className={`text-xs font-medium px-2 py-1 rounded ${
-                  statusStyles[b.status as BookingStatus] ?? "bg-gray-100 text-gray-500"
+                  statusStyles[b.status] ?? "bg-gray-100 text-gray-500"
                 }`}
               >
                 {b.status}
               </span>
-              {(b.status === "PENDING" || b.status === "CONFIRMED") && (
+              {b.status === "RESERVED" && (
                 <button
                   onClick={() => handleCancel(b.id)}
                   className="text-red-600 hover:underline text-sm"

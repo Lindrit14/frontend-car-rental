@@ -1,9 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { getAllCars, createCar, updateCar, deleteCar } from "../../api/cars";
-import type { Car, CreateCarRequest, UpdateCarRequest, CarType, Transmission } from "../../types";
+import { getCars, createCar, updateCar, deleteCar } from "../../api/cars";
+import type { Car, CreateCarRequest, CarType } from "../../types";
 
 const CAR_TYPES: CarType[] = ["ECONOMY", "COMPACT", "SUV", "VAN", "ELECTRIC", "LUXURY"];
-const TRANSMISSIONS: Transmission[] = ["AUTOMATIC", "MANUAL"];
 
 const emptyForm: CreateCarRequest = {
   brand: "",
@@ -13,11 +12,6 @@ const emptyForm: CreateCarRequest = {
   dailyRate: 0,
   carType: "ECONOMY",
   location: "",
-  seats: 5,
-  transmission: "AUTOMATIC",
-  largeLuggageSpace: 0,
-  smallLuggageSpace: 0,
-  imageUrl: "",
 };
 
 export default function CarManagement() {
@@ -26,12 +20,12 @@ export default function CarManagement() {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<CreateCarRequest & { available?: boolean }>(emptyForm);
+  const [form, setForm] = useState<CreateCarRequest>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
 
   function loadCars() {
     setLoading(true);
-    getAllCars()
+    getCars()
       .then((data) => {
         const valid = data.filter((c) => c.brand);
         setCars(valid);
@@ -63,12 +57,6 @@ export default function CarManagement() {
       dailyRate: car.dailyRate,
       carType: car.carType,
       location: car.location,
-      seats: car.seats ?? 5,
-      transmission: car.transmission ?? "AUTOMATIC",
-      largeLuggageSpace: car.largeLuggageSpace ?? 0,
-      smallLuggageSpace: car.smallLuggageSpace ?? 0,
-      imageUrl: car.imageUrl ?? "",
-      available: car.available,
     });
     setShowForm(true);
   }
@@ -235,90 +223,6 @@ export default function CarManagement() {
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Seats
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={1}
-                  value={form.seats}
-                  onChange={(e) => updateField("seats", Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Transmission
-                </label>
-                <select
-                  required
-                  value={form.transmission}
-                  onChange={(e) => updateField("transmission", e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {TRANSMISSIONS.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Large Luggage Spaces
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  value={form.largeLuggageSpace}
-                  onChange={(e) => updateField("largeLuggageSpace", Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Small Luggage Spaces
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  value={form.smallLuggageSpace}
-                  onChange={(e) => updateField("smallLuggageSpace", Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL
-                </label>
-                <input
-                  type="text"
-                  value={form.imageUrl}
-                  onChange={(e) => updateField("imageUrl", e.target.value)}
-                  placeholder="https://..."
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              {editingId !== null && (
-                <div className="sm:col-span-2 flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="available"
-                    checked={form.available ?? false}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, available: e.target.checked }))
-                    }
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="available" className="text-sm font-medium text-gray-700">
-                    Available
-                  </label>
-                </div>
-              )}
             </div>
             <div className="flex gap-3">
               <button
@@ -358,7 +262,6 @@ export default function CarManagement() {
                 <th className="text-left px-4 py-3 font-medium text-gray-700">License</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-700">Location</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-700">Rate</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-700">Status</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
@@ -374,18 +277,7 @@ export default function CarManagement() {
                   <td className="px-4 py-3">{car.carType}</td>
                   <td className="px-4 py-3">{car.licensePlate}</td>
                   <td className="px-4 py-3">{car.location}</td>
-                  <td className="px-4 py-3">€{(car.dailyRate ?? 0).toFixed(2)}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`text-xs font-medium px-2 py-1 rounded ${
-                        car.available
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {car.available ? "Available" : "Unavailable"}
-                    </span>
-                  </td>
+                  <td className="px-4 py-3">${(car.dailyRate ?? 0).toFixed(2)}</td>
                   <td className="px-4 py-3 text-right space-x-2">
                     <button
                       onClick={() => openEditForm(car)}
