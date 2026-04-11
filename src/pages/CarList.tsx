@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import AuthModal from "../components/AuthModal";
 import BookingModal from "../components/BookingModal";
 import type { Car, CarType } from "../types";
+import CityAutocomplete from "../components/CityAutocomplete";
 
 const CAR_TYPES: CarType[] = ["ECONOMY", "COMPACT", "SUV", "VAN", "ELECTRIC", "LUXURY"];
 
@@ -97,13 +98,12 @@ export default function CarList() {
               <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-0.5 px-1">
                 Location
               </label>
-              <input
-                type="text"
-                required
-                placeholder="Airport, city or station"
+              <CityAutocomplete
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={setLocation}
+                placeholder="Airport, city or station"
                 className="w-full px-3 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-200"
+                required
               />
             </div>
 

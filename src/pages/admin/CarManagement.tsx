@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { getCars, createCar, updateCar, deleteCar } from "../../api/cars";
 import type { Car, CreateCarRequest, CarType } from "../../types";
+import CityAutocomplete from "../../components/CityAutocomplete";
 
 const CAR_TYPES: CarType[] = ["ECONOMY", "COMPACT", "SUV", "VAN", "ELECTRIC", "LUXURY"];
 
@@ -215,12 +216,12 @@ export default function CarManagement() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Location
                 </label>
-                <input
-                  type="text"
-                  required
+                <CityAutocomplete
                   value={form.location}
-                  onChange={(e) => updateField("location", e.target.value)}
+                  onChange={(val) => updateField("location", val)}
+                  placeholder="Enter a city"
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
               </div>
             </div>
