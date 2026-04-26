@@ -8,6 +8,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import CarManagement from "./pages/admin/CarManagement";
 import BookingManagement from "./pages/admin/BookingManagement";
 import MyBookings from "./pages/MyBookings";
+import GoogleMapsProvider from "./components/GoogleMapsProvider";
 
 function Header() {
   const { auth, logout } = useAuth();
@@ -72,6 +73,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
+    <GoogleMapsProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -114,6 +116,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </GoogleMapsProvider>
   );
 }
 
