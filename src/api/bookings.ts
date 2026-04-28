@@ -12,6 +12,10 @@ export function getMyBookings(): Promise<Booking[]> {
   return apiFetch<Booking[]>("/api/booking/my");
 }
 
+export function getAllBookings(): Promise<Booking[]> {
+  return apiFetch<Booking[]>("/api/booking");
+}
+
 export function getBookingById(id: string): Promise<Booking> {
   return apiFetch<Booking>(`/api/booking/${id}`);
 }
