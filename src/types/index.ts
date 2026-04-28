@@ -51,6 +51,14 @@ export interface AuthResponse {
   role: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
 // --- Booking ---
 export type BookingStatus = "RESERVED" | "ACTIVE" | "RETURNED" | "CANCELLED";
 

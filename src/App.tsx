@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { CurrencyProvider } from "./context/CurrencyContext";
+import CurrencySelector from "./components/CurrencySelector";
 import CarList from "./pages/CarList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -7,6 +9,7 @@ import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import CarManagement from "./pages/admin/CarManagement";
 import BookingManagement from "./pages/admin/BookingManagement";
+import UserManagement from "./pages/admin/UserManagement";
 import MyBookings from "./pages/MyBookings";
 import GoogleMapsProvider from "./components/GoogleMapsProvider";
 
@@ -20,6 +23,7 @@ function Header() {
           Car Rental
         </Link>
         <nav className="flex items-center gap-4">
+          <CurrencySelector />
           {auth ? (
             <>
               <Link to="/bookings" className="text-sm text-blue-600 hover:underline">
@@ -75,6 +79,7 @@ function App() {
   return (
     <GoogleMapsProvider>
     <AuthProvider>
+      <CurrencyProvider>
       <BrowserRouter>
         <Routes>
           <Route
@@ -88,6 +93,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="cars" element={<CarManagement />} />
             <Route path="bookings" element={<BookingManagement />} />
+            <Route path="users" element={<UserManagement />} />
           </Route>
 
           <Route
@@ -115,6 +121,7 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
+      </CurrencyProvider>
     </AuthProvider>
     </GoogleMapsProvider>
   );

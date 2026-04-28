@@ -11,7 +11,8 @@ interface CityAutocompleteProps {
 
 interface Suggestion {
   placeId: string;
-  text: string;
+  city: string;
+  description: string;
 }
 
 export default function CityAutocomplete({
@@ -62,7 +63,8 @@ export default function CityAutocomplete({
           setSuggestions(
             predictions.map((p) => ({
               placeId: p.place_id,
-              text: p.description,
+              city: p.structured_formatting?.main_text ?? p.description,
+              description: p.description,
             }))
           );
           setShowDropdown(true);
@@ -76,7 +78,7 @@ export default function CityAutocomplete({
 
   function selectSuggestion(suggestion: Suggestion) {
     skipFetchRef.current = true;
-    onChange(suggestion.text);
+    onChange(suggestion.city);
     setSuggestions([]);
     setShowDropdown(false);
     sessionTokenRef.current = null;
@@ -123,7 +125,7 @@ export default function CityAutocomplete({
                 i === activeIndex ? "bg-cyan-50 text-cyan-900" : "text-gray-700 hover:bg-gray-50"
               }`}
             >
-              {s.text}
+              {s.description}
             </li>
           ))}
         </ul>

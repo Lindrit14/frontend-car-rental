@@ -23,6 +23,15 @@ export default function Dashboard() {
             Look up, assign cars to, and manage customer bookings.
           </p>
         </Link>
+        <Link
+          to="/admin/users"
+          className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow border border-gray-200"
+        >
+          <h2 className="text-lg font-semibold text-gray-900">Manage Users</h2>
+          <p className="text-sm text-gray-500 mt-2">
+            Promote an existing user to administrator.
+          </p>
+        </Link>
       </div>
     </div>
   );

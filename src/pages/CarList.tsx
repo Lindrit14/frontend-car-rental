@@ -1,10 +1,12 @@
-import { useState, type FormEvent } from "react";
-import { getCarsByType } from "../api/cars";
+import { useEffect, useState, type FormEvent } from "react";
+import { getCars, getCarsByType } from "../api/cars";
 import { useAuth } from "../context/AuthContext";
 import AuthModal from "../components/AuthModal";
 import BookingModal from "../components/BookingModal";
 import type { Car, CarType } from "../types";
 import CityAutocomplete from "../components/CityAutocomplete";
+import CarResultCard from "../components/CarResultCard";
+import { useCurrency } from "../context/CurrencyContext";
 
 const CAR_TYPES: CarType[] = ["ECONOMY", "COMPACT", "SUV", "VAN", "ELECTRIC", "LUXURY"];
 
@@ -27,34 +29,59 @@ function uniqueRates(cars: Car[]) {
   return [...new Set(cars.map((car) => car.dailyRate))].sort((a, b) => a - b);
 }
 
+function sortByRate(cars: Car[]) {
+  return [...cars].sort((a, b) => a.dailyRate - b.dailyRate);
+}
+
 export default function CarList() {
   const [location, setLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [carType, setCarType] = useState<CarType>("ECONOMY");
   const [cars, setCars] = useState<Car[] | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [bookingParams, setBookingParams] = useState<{ type: CarType; location: string; dailyRate: number } | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { auth } = useAuth();
+  const { formatPrice } = useCurrency();
 
   const days = startDate && endDate ? calcDays(startDate, endDate) : null;
   const rates = cars ? uniqueRates(cars) : [];
   const lowestRate = rates[0] ?? null;
-  const highestRate = rates[rates.length - 1] ?? null;
+
+  useEffect(() => {
+    setLoading(true);
+    getCars()
+      .then((data) => setCars(data))
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    setHasSearched(true);
     setCars(null);
 
     getCarsByType(carType, location.trim())
       .then((data) => {
         setCars(data);
       })
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setLoading(false));
+  }
+
+  function handleClearSearch() {
+    setError(null);
+    setHasSearched(false);
+    setLoading(true);
+    setCars(null);
+    getCars()
+      .then((data) => setCars(data))
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }
@@ -181,84 +208,53 @@ export default function CarList() {
         {error && <p className="text-center mt-6 text-red-500">Error: {error}</p>}
 
         {loading && (
-          <p className="text-center mt-10 text-gray-500">Searching available cars...</p>
+          <p className="text-center mt-10 text-gray-500">Loading cars...</p>
         )}
 
         {cars !== null && !loading && cars.length === 0 && !error && (
           <p className="text-center mt-10 text-gray-500">
-            No cars available for the selected type and location.
+            {hasSearched
+              ? "No cars available for the selected type and location."
+              : "No cars are currently in the fleet."}
           </p>
         )}
 
-        {cars !== null && !loading && cars.length > 0 && lowestRate !== null && highestRate !== null && (
-          <div className="border border-gray-200 rounded-2xl shadow-sm bg-white overflow-hidden">
-            <div className="p-6 sm:p-8 flex flex-col lg:flex-row gap-8 lg:items-center">
-              <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-700">
-                  Type-based booking
-                </p>
-                <h2 className="mt-2 text-3xl font-bold text-gray-900">
-                  {carType} in {location}
+        {cars !== null && !loading && cars.length > 0 && lowestRate !== null && (
+          <>
+            <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {hasSearched ? `${carType} in ${location}` : "All available cars"}
                 </h2>
-                <p className="mt-3 text-sm text-gray-600 max-w-2xl">
-                  Your booking reserves a vehicle category, not a specific car. The exact vehicle is assigned later by the admin team based on availability.
+                <p className="text-sm text-gray-500">
+                  {cars.length} vehicle{cars.length === 1 ? "" : "s"} available · from {formatPrice(lowestRate, { maximumFractionDigits: 0 })}/day
                 </p>
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                  <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                    <p className="text-gray-500">Available cars</p>
-                    <p className="mt-1 text-xl font-semibold text-gray-900">{cars.length}</p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                    <p className="text-gray-500">Daily rate range</p>
-                    <p className="mt-1 text-xl font-semibold text-gray-900">
-                      ${lowestRate.toFixed(2)}{lowestRate !== highestRate ? ` - $${highestRate.toFixed(2)}` : ""}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                    <p className="text-gray-500">Rental period</p>
-                    <p className="mt-1 text-xl font-semibold text-gray-900">
-                      {days ?? 0} day{days === 1 ? "" : "s"}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-5">
-                  <p className="text-sm font-medium text-gray-700">Indicative daily rates</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {rates.map((rate) => (
-                      <span
-                        key={rate}
-                        className="px-3 py-1.5 rounded-full bg-cyan-50 text-cyan-800 text-sm border border-cyan-100"
-                      >
-                        ${rate.toFixed(2)}/day
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
-
-              <div className="lg:w-72 rounded-2xl bg-slate-900 text-white p-6">
-                <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">Estimated from</p>
-                <p className="mt-3 text-4xl font-bold">
-                  ${((days ?? 1) * lowestRate).toFixed(2)}
-                </p>
-                <p className="mt-2 text-sm text-slate-300">
-                  {days ? `${days} day${days === 1 ? "" : "s"} at the lowest available rate.` : "Select dates to see a trip estimate."}
-                </p>
+              {hasSearched ? (
                 <button
-                  onClick={() => handleBook(carType, location.trim(), lowestRate)}
-                  className="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-sm font-semibold px-5 py-3 rounded transition-colors"
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="text-sm text-blue-600 hover:underline"
                 >
-                  Book {carType}
+                  Show all cars
                 </button>
-              </div>
+              ) : (
+                <p className="text-xs text-gray-500 max-w-md">
+                  Browse the fleet, or use the search above to filter by type, location, and dates.
+                </p>
+              )}
             </div>
-          </div>
-        )}
-
-        {cars === null && !loading && !error && (
-          <div className="text-center mt-16 text-gray-400">
-            <p className="text-lg">Enter your location, car type, and dates to find an available category.</p>
-          </div>
+            <div className="space-y-4">
+              {sortByRate(cars).map((car) => (
+                <CarResultCard
+                  key={car.id}
+                  car={car}
+                  days={days}
+                  onBook={(c) => handleBook(c.carType, c.location, c.dailyRate)}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
 
